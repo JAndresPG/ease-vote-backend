@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 // Importación de la interfaz ERC2771Context
 import "@openzeppelin/contracts/metatx/ERC2771Context.sol";
 
 // Declaración del contrato que utiliza ERC2771Forwarder
-contract VotoElectronico is ERC2771Context {
+contract EasyVote is ERC2771Context {
     
     // Estructura para representar un voto
     struct Voto {
@@ -14,10 +14,15 @@ contract VotoElectronico is ERC2771Context {
         uint256 procesoElectoral;
     }
 
+    // Estructura para representar el resultado de un candidato y sus votos
+    struct CandidatoVotos {
+        uint256 candidato;
+        uint256 votos;
+    }
+
     // Estructura para representar el resultado de un proceso electoral
     struct ResultadoProcesoElectoral {
-        uint256[] candidatos;
-        uint256[] votosPorCandidato;
+        CandidatoVotos[] candidatosVotos;
         uint256 votosEnBlanco;
         uint256 votosNulos;
     }
@@ -70,9 +75,8 @@ contract VotoElectronico is ERC2771Context {
 
     // Función para obtener el resultado completo de un proceso electoral
     function obtenerResultadoProcesoElectoral(uint256 _procesoElectoral) public view returns (ResultadoProcesoElectoral memory) {
-        // Crear arrays temporales para almacenar candidatos y sus votos
-        uint256[] memory candidatos;
-        uint256[] memory votosCandidatos;
+        // Crear un array temporal para almacenar candidatos y sus votos
+        CandidatoVotos[] memory candidatosVotos;
 
         // Contar el número de candidatos
         uint256 count = 0;
@@ -82,24 +86,24 @@ contract VotoElectronico is ERC2771Context {
             }
         }
 
-        // Inicializar los arrays con el tamaño correcto
-        candidatos = new uint256[](count);
-        votosCandidatos = new uint256[](count);
+        // Inicializar el array con el tamaño correcto
+        candidatosVotos = new CandidatoVotos[](count);
 
         // Rellenar los arrays con los datos de los candidatos y sus votos
         uint256 index = 0;
         for (uint256 i = 0; i < 256; i++) {
             if (votosPorCandidato[_procesoElectoral][i] > 0) {
-                candidatos[index] = i;
-                votosCandidatos[index] = votosPorCandidato[_procesoElectoral][i];
+                candidatosVotos[index] = CandidatoVotos({
+                    candidato: i,
+                    votos: votosPorCandidato[_procesoElectoral][i]
+                });
                 index++;
             }
         }
 
         // Crear y devolver la estructura con el resultado del proceso electoral
         return ResultadoProcesoElectoral({
-            candidatos: candidatos,
-            votosPorCandidato: votosCandidatos,
+            candidatosVotos: candidatosVotos,
             votosEnBlanco: votosEnBlanco[_procesoElectoral],
             votosNulos: votosNulos[_procesoElectoral]
         });

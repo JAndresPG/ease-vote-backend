@@ -31,6 +31,7 @@ const verifyToken = (req, res, next) => {
                 req.body = { ...req.body, ...decoded.data }
                 next()
             } else {
+                req.query = { ...req.query, ...decoded.data }
                 next()
             }
         })

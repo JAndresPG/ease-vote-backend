@@ -32,13 +32,18 @@ eventos.setEventos = async (req, res) => {
 }
 
 eventos.getCurrentEvents = async (req, res) => {
+    const { id } = req.query
     try {
         const eventos = await db.query(`
             select cod_evento, nombre, fin
             from eventos e
-            where now() between e.inicio and e.fin
+            where now() between e.inicio and e.fin and not exists(
+                select 1
+                from voto_evento ve 
+                where ve.cod_persona = $1 and e.cod_evento = ve.cod_evento
+            )
             order by e.fin
-        `)
+        `, [id])
 
         res.json(eventos.rows ?? [])
     } catch(e) {

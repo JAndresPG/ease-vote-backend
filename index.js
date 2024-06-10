@@ -15,8 +15,9 @@ app.get('/', (req, res) => {
 
 app.listen(port, () => {
   console.log(`Servidor ejecutandose en el puerto ${port}`)
-})
+});
 
 require('./rutas/eventos/eventos')(app)
 require('./rutas/auth/auth')(app)
 require('./rutas/candidatos/candidatos')(app)
+require('./rutas/votos/votos')(app)
